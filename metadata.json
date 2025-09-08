@@ -1,0 +1,5 @@
+{
+  "name": "AI Storybook Creator",
+  "description": "An application that uses AI to generate personalized children's storybooks from an uploaded image and story prompts. Users can customize the age group, length, and artistic style of their books.",
+  "requestFramePermissions": []
+}
