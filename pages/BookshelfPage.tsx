@@ -28,12 +28,12 @@ export const BookshelfPage: React.FC<BookshelfPageProps> = ({ books }) => {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {books.map((book) => (
-              <div key={book.id} className="group cursor-pointer">
+              <Link key={book.id} to={`/book/${book.id}`} className="group cursor-pointer">
                 <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform group-hover:-translate-y-2">
                   <img src={book.coverImageUrl} alt={book.title} className="w-full h-auto object-cover aspect-[3/4]" />
                 </div>
                 <h3 className="text-md font-semibold text-brand-text-primary mt-3 truncate group-hover:text-purple-600">{book.title}</h3>
-              </div>
+              </Link>
             ))}
           </div>
         )}

@@ -6,6 +6,7 @@ import { Footer } from './components/Footer';
 import { HomePage } from './pages/HomePage';
 import { CreatePage } from './pages/CreatePage';
 import { BookshelfPage } from './pages/BookshelfPage';
+import { BookViewerPage } from './pages/BookViewerPage';
 import { Storybook } from './types';
 import { MOCK_STORYBOOKS } from './constants';
 
@@ -29,6 +30,7 @@ const AppContent: React.FC = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/create" element={<CreatePage addBookToShelf={addBookToShelf} />} />
             <Route path="/bookshelf" element={<BookshelfPage books={books} />} />
+            <Route path="/book/:id" element={<BookViewerPage books={books} />} />
           </Routes>
       </main>
       <Footer />
