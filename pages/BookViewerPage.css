@@ -62,3 +62,13 @@
 .stf__wrapper {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
+
+/* Center the book when showing cover */
+.stf__parent[style*="width: 400px"] {
+  margin: 0 auto !important;
+}
+
+/* Show book spread when opened */
+.stf__parent[style*="width: 800px"] {
+  margin: 0 auto !important;
+}

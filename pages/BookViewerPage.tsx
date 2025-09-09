@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import HTMLFlipBook from 'react-pageflip';
 import { Storybook } from '../types';
@@ -23,6 +23,7 @@ export const BookViewerPage: React.FC<BookViewerPageProps> = ({ books }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const bookRef = useRef<any>(null);
+  const [currentPage, setCurrentPage] = useState(0);
   
   const book = books.find(b => b.id === id);
   
@@ -40,7 +41,15 @@ export const BookViewerPage: React.FC<BookViewerPageProps> = ({ books }) => {
 
   const flipNext = () => {
     if (bookRef.current) {
-      bookRef.current.pageFlip().flipNext();
+      // If we're on the cover page, first animate the translation
+      if (currentPage === 0) {
+        setCurrentPage(1); // Trigger translation animation
+        setTimeout(() => {
+          bookRef.current.pageFlip().flipNext();
+        }, 300); // Wait for translation animation
+      } else {
+        bookRef.current.pageFlip().flipNext();
+      }
     }
   };
 
@@ -52,7 +61,24 @@ export const BookViewerPage: React.FC<BookViewerPageProps> = ({ books }) => {
 
   const onFlip = useCallback((e: any) => {
     console.log('Current page:', e.data);
-  }, []);
+    // Only update if actually flipping
+    if (e.data !== currentPage) {
+      setCurrentPage(e.data);
+    }
+  }, [currentPage]);
+
+  // Handle click on book to flip from cover
+  const handleBookClick = useCallback((e: any) => {
+    if (currentPage === 0 && bookRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      // First animate the translation
+      setCurrentPage(1);
+      setTimeout(() => {
+        bookRef.current.pageFlip().flipNext();
+      }, 300);
+    }
+  }, [currentPage]);
 
   // Build pages array with proper pairing
   const allPages = [];
@@ -88,9 +114,21 @@ export const BookViewerPage: React.FC<BookViewerPageProps> = ({ books }) => {
     </Page>
   );
 
-  // Story pages - each story page becomes two book pages (image left, text right)
+  // Story pages - each story page becomes two book pages (text left, image right)
   book.pages.forEach((page, index) => {
-    // Image page (left side when book is open)
+    // Text page (left side when book is open)
+    allPages.push(
+      <Page key={`text-${page.pageNumber}`} pageType="text">
+        <div className="flex flex-col justify-center h-full p-12 relative">
+          <p className="text-lg leading-relaxed text-gray-800 font-serif">
+            {page.text}
+          </p>
+          <span className="absolute bottom-8 right-8 text-sm text-gray-400">{page.pageNumber}</span>
+        </div>
+      </Page>
+    );
+    
+    // Image page (right side when book is open)
     allPages.push(
       <Page key={`img-${page.pageNumber}`} pageType="image">
         <div className="flex items-center justify-center h-full p-4">
@@ -99,18 +137,6 @@ export const BookViewerPage: React.FC<BookViewerPageProps> = ({ books }) => {
             alt={`Page ${page.pageNumber}`}
             className="w-auto h-full object-contain rounded-lg shadow-lg"
           />
-        </div>
-      </Page>
-    );
-    
-    // Text page (right side when book is open)
-    allPages.push(
-      <Page key={`text-${page.pageNumber}`} pageType="text">
-        <div className="flex flex-col justify-center h-full p-12">
-          <p className="text-lg leading-relaxed text-gray-800 font-serif">
-            {page.text}
-          </p>
-          <p className="text-sm text-gray-400 text-center mt-8">Page {page.pageNumber}</p>
         </div>
       </Page>
     );
@@ -163,7 +189,15 @@ export const BookViewerPage: React.FC<BookViewerPageProps> = ({ books }) => {
             </svg>
           </button>
 
-          <div className="book-container" style={{ width: '800px', height: '533px' }}>
+          <div 
+            className="book-container transition-all duration-300" 
+            style={{ 
+              width: '800px', 
+              height: '533px',
+              transform: currentPage === 0 ? 'translateX(-200px)' : 'translateX(0)'
+            }}
+            onClick={handleBookClick}
+          >
             <HTMLFlipBook
               width={400}
               height={533}
@@ -188,7 +222,7 @@ export const BookViewerPage: React.FC<BookViewerPageProps> = ({ books }) => {
               swipeDistance={30}
               clickEventForward={false}
               showPageCorners={true}
-              disableFlipByClick={false}
+              disableFlipByClick={currentPage === 0}
             >
               {allPages}
             </HTMLFlipBook>
